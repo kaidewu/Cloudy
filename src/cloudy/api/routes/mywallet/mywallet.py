@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+import sqlalchemy.exc
 from sqlalchemy.orm import Session
 from database.connection import SessionLocal
 from database import models
@@ -49,14 +50,20 @@ async def get_user_wallet(
         )
 
         if (user_wallets is None) or (user_wallets == []):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "statusCode": status.HTTP_400_BAD_REQUEST,
-                    "message": f"The user {user_id} wallet not exists"
-                }
-            )
-        
+
+            results = {
+                "statusCode": status.HTTP_400_BAD_REQUEST,
+                "message": f"The user {user_id} wallet not exists"
+            }
+            results.update(Error(
+                    f"The user {user_id} wallet not exists",
+                    f"The user {user_id} wallet not exists",
+                    status.HTTP_400_BAD_REQUEST,
+                    f"http://192.168.1.47/api/v1/{user_id}/wallet"
+                ).insert_error_db())
+            
+            return results
+
         for wallet in user_wallets:
             wallets.append({
                 "userId": wallet[0],
@@ -74,12 +81,14 @@ async def get_user_wallet(
         })
 
         return results
+
     except:
         results.update(Error(
             traceback.format_exc(),
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             f"http://192.168.1.47/api/v1/{user_id}/wallet"
         ).insert_error_db())
+
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=results
