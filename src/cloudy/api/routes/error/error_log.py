@@ -12,6 +12,7 @@ class Error:
     def __init__(
             self,
             error_traceback: str,
+            error_massage: str,
             status: int,
             endpoint: str
             ) -> None:
@@ -20,6 +21,7 @@ class Error:
         self.error_status = status
         self.error_endpoint = endpoint
         self.error_traceback = error_traceback
+        self.error_massage = error_massage
 
     def insert_error_db(self):
 
@@ -44,5 +46,6 @@ class Error:
 
         return {
                 "errorId": self.error_uuid,
-                "message": "Internal Error" if self.error_status in (500, 501, 502, 503, 504, 505, 506, 507, 508, 509) else "Warning"
+                "erroCode": "Internal Error" if (self.error_status >= 500) and (self.error_status <= 509) else "Warning",
+                "message": self.error_massage
             }
