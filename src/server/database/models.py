@@ -18,20 +18,20 @@ class User(Base):
     USER_ACTIVE= Column(Boolean, nullable=False, default=False)
     USER_LAST_LOGIN= Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
 
-class Wallet(Base):
+class Wallets(Base):
     __tablename__ = "WALLETS"
     WALLET_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    USER_ID = Column(Integer, ForeignKey('USERS.USER_ID'), index=True, nullable=False, unique=True)
+    USER_ID = Column(Integer, ForeignKey('USERS.USER_ID'), index=True, nullable=False)
     WALLET_DELETED = Column(Boolean, default=False)
     WALLET_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
 
 class Account(Base):
     __tablename__ = "WALLET_ACCOUNTS"
     ACCOUNT_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    WALLET_ID = Column(Integer, ForeignKey('WALLETS.WALLET_ID'), index=True, nullable=False, unique=True)
-    ACCOUNT_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False, unique=True, index=True)
-    ACCOUNT_BALANCE = Column(Integer, nullable=False, unique=True, index=True, default=0)
-    ACCOUNT_CURRENCY_TYPES_ID = Column(Integer, ForeignKey('ACCOUNT_CURRENCY_TYPES.ACCOUNT_CURRENCY_TYPES_ID'), nullable=False, unique=True, index=True)
+    WALLET_ID = Column(Integer, ForeignKey('WALLETS.WALLET_ID'), index=True, nullable=False)
+    ACCOUNT_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False, index=True)
+    ACCOUNT_BALANCE = Column(Integer, nullable=False, index=True, default=0)
+    ACCOUNT_CURRENCY_TYPES_ID = Column(Integer, ForeignKey('ACCOUNT_CURRENCY_TYPES.ACCOUNT_CURRENCY_TYPES_ID'), nullable=False, index=True)
     ACCOUNT_DELETED = Column(Boolean, default=False)
     ACCOUNT_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
 
