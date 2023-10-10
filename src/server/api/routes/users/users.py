@@ -25,13 +25,17 @@ async def get_users(
     try:
         all_users = db.query(models.User).filter(models.User.USER_ACTIVE == True).all()
         if (all_users is None) or (all_users == []):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
+            results = {
                     "statusCode": status.HTTP_400_BAD_REQUEST,
                     "message": "Users are not registered"
                 }
-            )
+            results.update(Error(
+                    "Not Exists Users",
+                    "Not Exists Users",
+                    status.HTTP_400_BAD_REQUEST,
+                    f"http://192.168.1.47/api/v1/users"
+                ).insert_error_db())
+            return results
         
         results.update({
             "status": status.HTTP_200_OK,
