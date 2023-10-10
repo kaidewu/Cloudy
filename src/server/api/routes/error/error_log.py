@@ -32,7 +32,7 @@ class Error:
         insert_query_logs = models.Logs(
             LOG_UUID = self.error_uuid,
             LOG_REGISTER_AT = self.error_register_at,
-            LOG_LEVEL = 2 if self.error_status in (500, 501, 502, 503, 504, 505, 506, 507, 508, 509) else 1,
+            LOG_LEVEL = 2 if (self.error_status >= 500) and (self.error_status <= 509) else 1,
             LOG_BODY = self.error_traceback,
             LOG_USER_ID = 1,
             LOG_ENDPOINT = self.error_endpoint,
