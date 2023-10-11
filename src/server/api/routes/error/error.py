@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from database.connection import SessionLocal
 from database import models
@@ -24,12 +25,28 @@ async def get_logs(
     results = {}
 
     try:
-        if (error_uuid is None) or (error_uuid == ""):
-            get_errors = db.query(models.Logs).filter(models.Logs.LOG_DELETED == False).all()
-        else:
-            get_errors = db.query(models.Logs).filter(models.Logs.LOG_UUID == error_uuid, models.Logs.LOG_DELETED == False).first()
+        all_logs = []
 
-        if (get_errors is None) or (get_errors == []):
+        get_logs = (
+            db.query(
+                models.Logs.LOG_UUID,
+                models.Logs.LOG_REGISTER_AT,
+                models.Logs.LOG_BODY,
+                models.Logs.LOG_ENDPOINT,
+                models.LogLevels.LOG_LEVEL_TYPE_NAME)
+                .join(models.LogLevels, models.Logs.LOG_LEVEL == models.LogLevels.LOG_LEVEL_TYPE_ID)
+                .filter(
+                    models.Logs.LOG_DELETED == False,
+                    models.LogLevels.LOG_LEVEL_TYPE_DELETED == False,
+                    or_(
+                        models.Logs.LOG_UUID == error_uuid,
+                        error_uuid is not None,
+                        error_uuid != ""
+                    )
+            ).all()
+        )
+
+        if (get_logs is None) or (get_logs == []):
             results.update(Error(
                 f"{error_uuid} not exists" if (error_uuid is not None) or (error_uuid != "") else "Not register Logs yet",
                 f"{error_uuid} not exists" if (error_uuid is not None) or (error_uuid != "") else "Not register Logs yet",
@@ -39,12 +56,20 @@ async def get_logs(
 
             return results
         
-        results = {
-            "status": status.HTTP_200_OK,
-            "logs": get_errors
-        }
+        for log in get_logs:
+            all_logs.append({
+                "logId": log[0],
+                "logRegisterAt": log[1],
+                "logTitle": str(log[2]).splitlines()[-1],
+                "logBody": log[2],
+                "logEndpoint": log[3],
+                "logLevel": log[4]
+            })
 
-        return results
+        return {
+            "status": status.HTTP_200_OK,
+            "logs": all_logs
+        }
         
     except:
         results.update(Error(
