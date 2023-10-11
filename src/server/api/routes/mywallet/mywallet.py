@@ -31,7 +31,8 @@ async def get_user_wallet(
                 models.User.USER_NAME,
                 models.User.USER_SURNAMES,
                 models.User.USER_MAIL
-                ).filter(models.User.USER_ID == user_id, models.User.USER_ACTIVE == 1).all()
+                ).filter(models.User.USER_ID == user_id, 
+                         models.User.USER_ACTIVE == True).all()
 
         user_wallets = (
             db.query(
