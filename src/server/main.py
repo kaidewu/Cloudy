@@ -1,12 +1,14 @@
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from api.routes.users.users import users_router
-from api.routes.mywallet.mywallet import wallet_router
 import uvicorn
 
 from database.connection import engine
 from database.models import Base
+
+from api.routes.users.users import users_router
+from api.routes.mywallet.mywallet import wallet_router
+from api.routes.error.error import error_router
 
 from dotenv import dotenv_values
 import os
@@ -38,8 +40,14 @@ app.include_router(
         tags=["users"],
     )
 
-@app.route("/favicon.ico")
-async def favicon():
+app.include_router(
+        error_router,
+        prefix="/api/v1",
+        tags=["logs"],
+    )
+
+@app.get("/favicon")
+def favicon():
     return status.HTTP_200_OK
 
 # Check if tables exist, create them if not
