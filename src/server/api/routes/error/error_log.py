@@ -47,6 +47,6 @@ class Error:
         return {
                 "status": self.error_status,
                 "errorId": self.error_uuid,
-                "erroCode": "Internal Error" if (self.error_status >= 500) and (self.error_status <= 509) else "Warning",
-                "message": self.error_massage
+                "errorLevel": "Internal Error" if (self.error_status >= 500) and (self.error_status <= 509) else "Warning",
+                "errorMessage": self.error_massage
             }
