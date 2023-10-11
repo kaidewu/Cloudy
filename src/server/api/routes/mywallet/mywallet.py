@@ -50,11 +50,6 @@ async def get_user_wallet(
         )
 
         if (user_wallets is None) or (user_wallets == []):
-
-            results = {
-                "status": status.HTTP_400_BAD_REQUEST,
-                "message": f"The user {user_id} wallet not exists"
-            }
             results.update(Error(
                     f"The user {user_id} wallet not exists",
                     f"The user {user_id} wallet not exists",
@@ -65,11 +60,6 @@ async def get_user_wallet(
             return results
         
         elif (user is None) or (user == []):
-
-            results = {
-                "status": status.HTTP_400_BAD_REQUEST,
-                "message": f"The user {user_id} not exists"
-            }
             results.update(Error(
                     f"The user {user_id} not exists",
                     f"The user {user_id} not exists",
@@ -101,11 +91,6 @@ async def get_user_wallet(
         return results
 
     except:
-        results.update(
-            {
-                "status": status.HTTP_500_INTERNAL_SERVER_ERROR
-            }
-        )
         results.update(Error(
             traceback.format_exc(),
             traceback.format_exc().splitlines()[-1],
