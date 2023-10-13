@@ -7,7 +7,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "USERS"
     USER_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    USER_CREATED_AT= Column(String(50, collation='utf8mb4_unicode_ci'), nullable=False)
+    USER_CREATED_AT= Column(Integer, nullable=False)
     USER_LOGIN= Column(String(255, collation='utf8mb4_unicode_ci'), unique=True, index=True)
     USER_PASSWORD= Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False)
     USER_MAIL= Column(String(255, collation='utf8mb4_unicode_ci'), index=True)
@@ -49,7 +49,7 @@ class Logs(Base):
     __tablename__ = "LOGS"
     LOG_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
     LOG_UUID = Column(String(50, collation='utf8mb4_unicode_ci'), nullable=False, index=True)
-    LOG_REGISTER_AT = Column(String(50, collation='utf8mb4_unicode_ci'), nullable=False)
+    LOG_REGISTER_AT = Column(Integer, nullable=False, index=True)
     LOG_LEVEL = Column(Integer, ForeignKey('LOG_LEVEL_TYPES.LOG_LEVEL_TYPE_ID'), nullable=False)
     LOG_BODY = Column(Text(collation='utf8mb4_unicode_ci'), nullable=False)
     LOG_USER_ID = Column(Integer, ForeignKey('USERS.USER_ID'), index=True, default=None)
