@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, status
 
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 from database.connection import SessionLocal
 from database import models
 from api.routes.error.error_log import Error
 
 import traceback
+from datetime import datetime
 
 error_router = APIRouter()
 
@@ -19,7 +20,9 @@ def get_db():
 
 @error_router.get("/logs", summary="Get logs of the application. Warnings or Errors")
 async def get_logs(
-    error_uuid: str = None,
+    errorId: str = None,
+    startDate: int = None,
+    endDate: int = None,
     db: Session = Depends(get_db)
 ):
     results = {}
@@ -27,29 +30,36 @@ async def get_logs(
     try:
         all_logs = []
 
-        get_logs = (
-            db.query(
-                models.Logs.LOG_UUID,
-                models.Logs.LOG_REGISTER_AT,
-                models.Logs.LOG_BODY,
-                models.Logs.LOG_ENDPOINT,
-                models.LogLevels.LOG_LEVEL_TYPE_NAME)
-                .join(models.LogLevels, models.Logs.LOG_LEVEL == models.LogLevels.LOG_LEVEL_TYPE_ID)
-                .filter(
-                    models.Logs.LOG_DELETED == False,
-                    models.LogLevels.LOG_LEVEL_TYPE_DELETED == False,
-                    or_(
-                        models.Logs.LOG_UUID == error_uuid,
-                        error_uuid is not None,
-                        error_uuid != ""
-                    )
-            ).all()
-        )
+        query = db.query(
+            models.Logs.LOG_UUID,
+            models.Logs.LOG_REGISTER_AT,
+            models.Logs.LOG_BODY,
+            models.Logs.LOG_ENDPOINT,
+            models.LogLevels.LOG_LEVEL_TYPE_NAME
+        ).join(models.LogLevels, models.Logs.LOG_LEVEL == models.LogLevels.LOG_LEVEL_TYPE_ID)
 
-        if (get_logs is None) or (get_logs == []):
+        # Dynamic filters based on conditions
+        filters = [
+            models.Logs.LOG_DELETED == False,
+            models.LogLevels.LOG_LEVEL_TYPE_DELETED == False
+        ]
+
+        if startDate is not None:
+            filters.append(models.Logs.LOG_REGISTER_AT >= startDate)
+
+        if endDate is not None:
+            filters.append(models.Logs.LOG_REGISTER_AT <= endDate)
+
+        if errorId is not None and errorId != "":
+            filters.append(models.Logs.LOG_UUID == errorId)
+
+        # Apply filters to the query using the and_ function to combine multiple filters with AND
+        get_logs = query.filter(and_(*filters))
+
+        if (get_logs is None) or (get_logs == []) or (get_logs == "null"):
             results.update(Error(
-                f"{error_uuid} not exists" if (error_uuid is not None) or (error_uuid != "") else "Not register Logs yet",
-                f"{error_uuid} not exists" if (error_uuid is not None) or (error_uuid != "") else "Not register Logs yet",
+                f"{errorId} not exists" if (errorId is not None) or (errorId != "") else "Not register Logs yet",
+                f"{errorId} not exists" if (errorId is not None) or (errorId != "") else "Not register Logs yet",
                 status.HTTP_400_BAD_REQUEST,
                 "http://192.168.1.47/api/v1/logs"
             ).insert_error_db())
@@ -59,7 +69,7 @@ async def get_logs(
         for log in get_logs:
             all_logs.append({
                 "logId": log[0],
-                "logRegisterAt": log[1],
+                "logRegisterAt": datetime.fromtimestamp(log[1]).isoformat(),
                 "logTitle": str(log[2]).splitlines()[-1],
                 "logBody": log[2],
                 "logEndpoint": log[3],
