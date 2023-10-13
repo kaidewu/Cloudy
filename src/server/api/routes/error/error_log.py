@@ -1,5 +1,5 @@
 from uuid import uuid4
-from datetime import datetime
+import time
 from database.connection import engine
 from database import models
 from sqlalchemy.orm import sessionmaker
@@ -17,7 +17,7 @@ class Error:
             endpoint: str
             ) -> None:
         self.error_uuid = str(uuid4())
-        self.error_register_at = datetime.now()
+        self.error_register_at = int(time.time())
         self.error_status = status
         self.error_endpoint = endpoint
         self.error_traceback = error_traceback
