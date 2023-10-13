@@ -1,78 +1,58 @@
 'use client'
 
-import { Log, LogsResponse } from '@/types/logs'
+import { LogsResponse } from '@/types/logs'
+import { Error } from '@/types/error'
 import { useState, useEffect } from 'react'
 import Alerts from '@/components/alerts'
+import Table from '@/components/Table'
+import Loading from '@/components/Loading'
 
-function LogsPage() {
-  const [logs, setLogs] = useState<Log[]>([])
-  const [error, setError] = useState<string | null>(null)
+const Logs = () => {
+  const [logs, setLogs] = useState<LogsResponse | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const [isLoading, setLoading] = useState(false)
 
-  useEffect(() => {
-    fetch("http://192.168.1.47/api/v1/logs")
+  function GetLogs(errorId: string) {
+
+    setLoading(true)
+
+    fetch("http://192.168.1.47/api/v1/logs?errorId=" + errorId)
       .then(async (response) => {
-        if (!response.ok) {
-          const errorData: LogsResponse = await response.json()
-          setError(errorData?.status.toString())
+        const data = await response.json()
+
+        if (data?.status >= 400 && data?.status <= 509) {
+          setError(data)
           return
+        } else {
+          setLogs(data?.logs)
         }
-        return response.json()
-      })
-      .then((data: LogsResponse) => {
-        setLogs(data.logs)
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
-        setError('500')
       })
+      .finally(() => {
+        // set loading to false after everything has completed.
+        setLoading(false)
+      })
+  }
+  
+  useEffect(() => {
+    // Make the initial API call when the component mounts
+    GetLogs("")
   }, [])
 
   return (
-    <main>
-      {error ? (
+    <>
+      { isLoading ? (
+        <Loading />
+      ): error ? (
         <Alerts errorData={error} />
       ) : (
-        <div className="container w-full md:w-4/5 xl:w-3/5 mx-auto px-2">
-          <div
-            id='recipients'
-            className="p-8 mt-6 lg:mt-0 rounded shadow bg-white text-black"
-          >
-            <table
-              id="example"
-              className="stripe hover"
-              style={{ width: "100%", paddingTop: "1em", paddingBottom: "1em" }}
-            >
-              {/* Table headers */}
-              <thead>
-                <tr>
-                  <th data-priority="1">Id</th>
-                  <th data-priority="2">Title</th>
-                  <th data-priority="3">Type</th>
-                  <th data-priority="4">Enpoint</th>
-                  <th data-priority="5">Traceback</th>
-                  <th data-priority="6">Register At</th>
-                </tr>
-              </thead>
-              {/* Table body */}
-              <tbody>
-                {logs?.map((log, index) => (
-                  <tr key={index}>
-                    <td>{log?.logId}</td>
-                    <td>{log?.logTitle}</td>
-                    <td>{log?.logLevel}</td>
-                    <td>{log?.logEndpoint}</td>
-                    <td>{log?.logBody}</td>
-                    <td>{log?.logRegisterAt}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <Table data={logs} />
       )}
-    </main>
+    </>
   )
 }
 
 
-export default LogsPage
+export default Logs
