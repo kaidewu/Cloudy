@@ -133,6 +133,16 @@ const Logs: React.FC = () => {
     }
   }
 
+  const handleRowClick = (index: number) => {
+    const newExpandedRows = [...expandedRows]
+    if (newExpandedRows.includes(index)) {
+      newExpandedRows.splice(newExpandedRows.indexOf(index), 1)
+    } else {
+      newExpandedRows.push(index)
+    }
+    setExpandedRows(newExpandedRows)
+  }
+
   return (
     <>
       { isLoading ? (
@@ -145,6 +155,7 @@ const Logs: React.FC = () => {
         </div>
       ) : (
         <div className="bg-white p-8 rounded-md w-full">
+          {/*<Filters />*/}
           <div className="flex items-center justify-between pb-6">
             <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
               <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
@@ -162,23 +173,36 @@ const Logs: React.FC = () => {
                     {/* Table body */}
                     <tbody>
                     {currentItems?.map((log, index) => (
-                      <tr key={index}>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                      <React.Fragment key={index}>
+                        <tr onClick={() => handleRowClick(index)}>
+                          <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <p className="text-gray-900 whitespace-no-wrap">{log?.logId}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          </td>
+                          <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <p className="text-gray-900 whitespace-no-wrap">{log?.logTitle}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          </td>
+                          <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <p className="text-gray-900 whitespace-no-wrap">{log?.logLevel}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          </td>
+                          <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <p className="text-gray-900 whitespace-no-wrap">{log?.logEndpoint}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          </td>
+                          <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <p className="text-gray-900 whitespace-no-wrap">{log?.logRegisterAt}</p>
-                        </td>
-                      </tr>
+                          </td>
+                        </tr>
+                        {expandedRows.includes(index) && (
+                          <tr>
+                            <td colSpan={5}>
+                              <div className="collapse bg-base-200">
+                                <div className="collapse-content">
+                                  <p className="text-gray-900 whitespace-no-wrap">{log.logBody}</p>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                     </tbody>
                 </table>

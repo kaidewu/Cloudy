@@ -46,7 +46,7 @@ app.include_router(
         tags=["logs"],
     )
 
-@app.get("/favicon")
+@app.get("/favicon.ico")
 def favicon():
     return status.HTTP_200_OK
 

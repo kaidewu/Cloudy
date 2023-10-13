@@ -16,7 +16,7 @@ def get_db():
     finally:
         db.close()
 
-@wallet_router.get("/user/{user_id}/wallet", response_description="List user wallet information")
+@wallet_router.get("/user/{user_id}/wallet", summary="List user wallet information")
 async def get_user_wallet(
     user_id: int,
     db: Session = Depends(get_db)):

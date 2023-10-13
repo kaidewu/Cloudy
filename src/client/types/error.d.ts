@@ -4,3 +4,7 @@ export interface Error {
     errorLevel: string
     errorMessage: string
 }
+
+export interface ErrorResponse {
+    detail: Error[]
+}
