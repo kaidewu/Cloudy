@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 
 from sqlalchemy.orm import Session
 from database.connection import SessionLocal
@@ -18,7 +18,7 @@ def get_db():
 
 @wallet_router.get("/user/{user_id}/wallet", summary="List user wallet information")
 async def get_user_wallet(
-    user_id: int,
+    user_id: str = None,
     db: Session = Depends(get_db)):
 
     results = {}
@@ -31,8 +31,8 @@ async def get_user_wallet(
                 models.User.USER_NAME,
                 models.User.USER_SURNAMES,
                 models.User.USER_MAIL
-                ).filter(models.User.USER_ID == user_id, 
-                         models.User.USER_ACTIVE == True).all()
+                ).filter(models.User.USER_ID == user_id,
+                         models.User.USER_ACTIVE == True).first()
 
         user_wallets = (
             db.query(
@@ -49,25 +49,17 @@ async def get_user_wallet(
             .all()
         )
 
-        if (user_wallets is None) or (user_wallets == []):
-            results.update(Error(
-                    f"The user {user_id} wallet not exists",
-                    f"The user {user_id} wallet not exists",
-                    status.HTTP_400_BAD_REQUEST,
-                    f"http://192.168.1.47/api/v1/{user_id}/wallet"
-                ).insert_error_db())
-            
-            return results
+        if (user_wallets is None) or (user_wallets == []) or (user_wallets == "null"):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"The user {user_id} wallet not exists"
+            )
         
-        elif (user is None) or (user == []):
-            results.update(Error(
-                    f"The user {user_id} not exists",
-                    f"The user {user_id} not exists",
-                    status.HTTP_400_BAD_REQUEST,
-                    f"http://192.168.1.47/api/v1/{user_id}/wallet"
-                ).insert_error_db())
-            
-            return results
+        if (user is None) or (user == []) or (user == "null"):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"The user {user_id} not exists"
+            )
 
         for wallet in user_wallets:
             wallets.append({
@@ -80,22 +72,46 @@ async def get_user_wallet(
         results.update({
             "status": status.HTTP_200_OK,
             "user": {
-                "userId": user[0][0],
-                "userName": user[0][1],
-                "userSurname": user[0][2],
-                "userMail": user[0][3],
+                "userId": user[0],
+                "userName": user[1],
+                "userSurname": user[2],
+                "userMail": user[3],
             },
             "userWallets": wallets
         })
 
         return results
 
-    except:
+    except HTTPException as http_exception:
+        if http_exception.detail == f"The user {user_id} wallet not exists":
+            results.update(Error(
+                    f"The user {user_id} wallet not exists",
+                    f"The user {user_id} wallet not exists",
+                    status.HTTP_404_NOT_FOUND,
+                    f"http://192.168.1.47/api/v1/{user_id}/wallet"
+                ).insert_error_db())
+        if http_exception.detail == f"The user {user_id} not exists":
+            results.update(Error(
+                    f"The user {user_id} not exists",
+                    f"The user {user_id} not exists",
+                    status.HTTP_404_NOT_FOUND,
+                    f"http://192.168.1.47/api/v1/{user_id}/wallet"
+                ).insert_error_db())
+
+        raise HTTPException(
+            status_code=http_exception.status_code,
+            detail=results
+        )
+
+    except Exception as exception:
         results.update(Error(
             traceback.format_exc(),
-            traceback.format_exc().splitlines()[-1],
+            str(exception),
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             f"http://192.168.1.47/api/v1/{user_id}/wallet"
         ).insert_error_db())
 
-        return results
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=results
+        )
