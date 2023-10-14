@@ -32,10 +32,10 @@ class Error:
         insert_query_logs = models.Logs(
             LOG_UUID = self.error_uuid,
             LOG_REGISTER_AT = self.error_register_at,
-            LOG_LEVEL = 2 if (self.error_status >= 500) and (self.error_status <= 509) else 1,
+            LOG_LEVEL = 2 if (self.error_status >= 500) and (self.error_status <= 599) else 1,
             LOG_BODY = self.error_traceback,
             LOG_ENDPOINT = self.error_endpoint,
-            LOG_DELETED = 0,
+            LOG_DELETED = False,
             LOG_DELETED_DATE = None
         )
 
@@ -46,6 +46,6 @@ class Error:
         return {
                 "status": self.error_status,
                 "errorId": self.error_uuid,
-                "errorLevel": "Internal Error" if (self.error_status >= 500) and (self.error_status <= 509) else "Warning",
+                "errorLevel": "Internal Error" if (self.error_status >= 500) and (self.error_status <= 599) else "Warning",
                 "errorMessage": self.error_massage
             }
