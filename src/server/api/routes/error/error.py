@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from database.connection import SessionLocal
 from database import models
@@ -25,12 +26,10 @@ async def get_logs(
     endDate: str = None,
     db: Session = Depends(get_db)
 ):
-    results = {}
     all_logs = []
     filters = []
 
     try:
-
         if startDate is not None and startDate != "":
             filters.append(models.Logs.LOG_REGISTER_AT >= startDate)
 
@@ -53,14 +52,20 @@ async def get_logs(
             ).all()
 
         if (get_logs is None) or (get_logs == []) or (get_logs == "null"):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                content=Error(
+                    f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
+                    f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
+                    status.HTTP_404_NOT_FOUND,
+                    "GET http://192.168.1.47/api/v1/logs"
+                ).insert_error_db()
             )
         
         for log in get_logs:
             all_logs.append({
                 "logId": log[0],
-                "logRegisterAt": datetime.fromtimestamp(log[1]).isoformat(),
+                "logRegisterAt": datetime.fromtimestamp(log[1]).strftime("%Y-%m-%d %H:%M:%S.%M"),
                 "logTitle": str(log[2]).splitlines()[-1],
                 "logBody": log[2],
                 "logEndpoint": log[3],
@@ -71,30 +76,14 @@ async def get_logs(
             "status": status.HTTP_200_OK,
             "logs": all_logs
         }
-
-    except HTTPException as http_exception:
-        if http_exception.status_code == 404:
-            results.update(Error(
-                f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
-                f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
-                http_exception.status_code,
-                "http://192.168.1.47/api/v1/logs"
-            ).insert_error_db())
-        
-        raise HTTPException(
-            status_code= http_exception.status_code,
-            detail=results
-        )
     
-    except Exception as exception:
-        results.update(Error(
-                traceback.format_exc(),
-                str(exception),
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "http://192.168.1.47/api/v1/logs"
-            ).insert_error_db())
-        
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=results
-        )
+    except:
+        return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                content=Error(
+                    traceback.format_exc(),
+                    traceback.format_exc().splitlines()[-1],
+                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "GET http://192.168.1.47/api/v1/logs"
+                ).insert_error_db()
+            )
