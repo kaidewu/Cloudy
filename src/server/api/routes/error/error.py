@@ -77,7 +77,7 @@ async def get_logs(
             results.update(Error(
                 f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
                 f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
-                status.HTTP_404_NOT_FOUND,
+                http_exception.status_code,
                 "http://192.168.1.47/api/v1/logs"
             ).insert_error_db())
         
