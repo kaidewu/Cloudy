@@ -34,7 +34,6 @@ class Error:
             LOG_REGISTER_AT = self.error_register_at,
             LOG_LEVEL = 2 if (self.error_status >= 500) and (self.error_status <= 509) else 1,
             LOG_BODY = self.error_traceback,
-            LOG_USER_ID = 1,
             LOG_ENDPOINT = self.error_endpoint,
             LOG_DELETED = 0,
             LOG_DELETED_DATE = None
