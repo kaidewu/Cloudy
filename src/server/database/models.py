@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Date, Boolean, ForeignKey, Text
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -52,7 +51,7 @@ class Logs(Base):
     LOG_REGISTER_AT = Column(Integer, nullable=False, index=True)
     LOG_LEVEL = Column(Integer, ForeignKey('LOG_LEVEL_TYPES.LOG_LEVEL_TYPE_ID'), nullable=False)
     LOG_BODY = Column(Text(collation='utf8mb4_unicode_ci'), nullable=False)
-    LOG_USER_ID = Column(Integer, ForeignKey('USERS.USER_ID'), index=True, default=None)
+    #LOG_USER_ID = Column(Integer, ForeignKey('USERS.USER_ID'), index=True, default=None)
     LOG_ENDPOINT = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     LOG_DELETED = Column(Boolean, default=False)
     LOG_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
