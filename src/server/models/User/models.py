@@ -8,3 +8,4 @@ class CreateUser(BaseModel):
     user_name: str
     user_surnames: str
     user_birthdate: str
+
