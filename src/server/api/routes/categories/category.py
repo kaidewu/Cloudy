@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from api.routes.error.error_log import Error
-from models.Category.models import 
+from models.Category.models import CreateCategory
 from sqlalchemy.orm import Session
 from database import models
 from database.connection import SessionLocal
