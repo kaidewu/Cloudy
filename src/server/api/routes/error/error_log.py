@@ -1,5 +1,7 @@
 from uuid import uuid4
 import time
+
+from typing import Dict
 from database.connection import engine
 from database import models
 from sqlalchemy.orm import sessionmaker
@@ -23,7 +25,7 @@ class Error:
         self.error_traceback = error_traceback
         self.error_massage = error_massage
 
-    def insert_error_db(self):
+    def insert_error_db(self) -> Dict:
 
         '''
             Insert into table LOGS
