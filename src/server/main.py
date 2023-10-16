@@ -1,4 +1,5 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Response
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -8,6 +9,7 @@ from database.models import Base
 from api.routes.users.users import users_router
 from api.routes.mywallet.mywallet import wallet_router
 from api.routes.error.error import error_router
+from api.routes.categories.category import category_router
 
 from dotenv import dotenv_values
 import os
@@ -23,7 +25,7 @@ app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_methods=["GET", "POST", "PUT"],
         allow_headers=["Authorization", "Content-Type"],
     )
 
@@ -45,9 +47,16 @@ app.include_router(
         tags=["logs"],
     )
 
+app.include_router(
+        category_router,
+        prefix="/api/v1",
+        tags=["category"],
+    )
+
 @app.get("/favicon.ico")
-def favicon():
-    return status.HTTP_200_OK
+def favicon(response: Response):
+    response.status_code=status.HTTP_200_OK
+    return FileResponse(f"{os.path.dirname(__file__)}/public/favicon.ico")
 
 # Check if tables exist, create them if not
 Base.metadata.create_all(bind=engine)
