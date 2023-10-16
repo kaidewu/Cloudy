@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from database.connection import SessionLocal
 from database import models
 from api.routes.error.error_log import Error
-from models import CreateUser
+from models.User.models import CreateUser
 from api.routes.users.utils import hash_password
 
 import traceback
@@ -68,10 +68,13 @@ async def get_users(
                 "userActive": user[9]
             })
 
-        return {
-            "status": status.HTTP_200_OK,
-            "data": users
-        }
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "data": users
+            }
+        )
 
     except:
         return JSONResponse(
