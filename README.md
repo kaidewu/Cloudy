@@ -1,5 +1,3 @@
-# Cloudy
-![Cover](/docs/Cover%20NextJS%20+%20FastAPI.jpg)
-Read this article: https://computingforgeeks.com/install-mongodb-7-0-on-ubuntu/
-
-Ideas for Wallet Page: https://www.tailwindtoolbox.com/templates/admin-template-night
+<p align="center">
+<a href="https://github.com/kaidewu/Cloudy"><img src="https://github.com/kaidewu/Cloudy/blob/main/docs/logo-cloudy.svg?raw=true" alt="Cloudy logo: Kaide's Webiste" width="150px"></a>
+</p>
