@@ -44,6 +44,32 @@ class AccountCurrencyType(Base):
     ACCOUNT_CURRENCY_TYPES_DELETED = Column(Boolean, default=False)
     ACCOUNT_CURRENCY_TYPES_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
 
+class Categories(Base):
+    __tablename__ = "CATEGORIES_TYPES"
+    CATEGORY_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    CATEGORY_ID_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    CATEGORY_ID_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_ID_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_ID_DESCRIPTION_DELETED = Column(Boolean, default=False)
+    CATEGORY_ID_DESCRIPTION_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
+
+class SubCategories(Base):
+    __tablename__ = "SUBCATEGORIES_TYPES"
+    SUBCATEGORY_TYPE_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    SUBCATEGORY_TYPE_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    SUBCATEGORY_TYPE_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    SUBCATEGORY_TYPE_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    SUBCATEGORY_TYPE_DESCRIPTION_DELETED = Column(Boolean, default=False)
+    SUBCATEGORY_TYPE_DESCRIPTION_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
+
+class RelationCategories(Base):
+    __tablename__ = "CATEGORY_SUBCATEGORY_RELATIONS"
+    CATEGORY_SUBCATEGORY_RELATION_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    CATEGORY_SUBCATEGORY_RELATION_CATEGORY_ID = Column(Integer, ForeignKey('CATEGORIES_TYPES.CATEGORY_ID'), nullable=False, index=True)
+    CATEGORY_SUBCATEGORY_RELATION_SUBCATEGORY_ID = Column(Integer, ForeignKey('SUBCATEGORIES_TYPES.SUBCATEGORY_TYPE_ID'), nullable=False, index=True)
+    CATEGORY_SUBCATEGORY_RELATION_DELETED = Column(Boolean, default=False)
+    CATEGORY_SUBCATEGORY_RELATION_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
+
 class Logs(Base):
     __tablename__ = "LOGS"
     LOG_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
