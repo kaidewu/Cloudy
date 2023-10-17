@@ -47,8 +47,8 @@ class AccountCurrencyType(Base):
 class Categories(Base):
     __tablename__ = "CATEGORIES_TYPES"
     CATEGORY_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    CATEGORY_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
-    CATEGORY_ICON_ID = Column(Integer, ForeignKey('CATEGORY_ICONS.CATEGORY_ICON_ID'), index=True, nullable=False)
+    CATEGORY_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    CATEGORY_ICON_ID = Column(Integer, ForeignKey('CATEGORY_ICONS.CATEGORY_ICON_ID'), unique=True, index=True, nullable=False)
     CATEGORY_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     CATEGORY_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     CATEGORY_DESCRIPTION_DELETED = Column(Boolean, default=False)
@@ -57,7 +57,7 @@ class Categories(Base):
 class CategoryIcons(Base):
     __tablename__ = "CATEGORY_ICONS"
     CATEGORY_ICON_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    CATEGORY_ICON_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    CATEGORY_ICON_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
     CATEGORY_ICON_URL = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     CATEGORY_ICON_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     CATEGORY_ICON_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
@@ -67,8 +67,8 @@ class CategoryIcons(Base):
 class SubCategories(Base):
     __tablename__ = "SUBCATEGORIES_TYPES"
     SUBCATEGORY_TYPE_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    SUBCATEGORY_TYPE_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
-    CATEGORY_ICON_ID = Column(Integer, ForeignKey('CATEGORY_ICONS.CATEGORY_ICON_ID'), index=True, nullable=False)
+    SUBCATEGORY_TYPE_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    CATEGORY_ICON_ID = Column(Integer, ForeignKey('CATEGORY_ICONS.CATEGORY_ICON_ID'), unique=True, index=True, nullable=False)
     SUBCATEGORY_TYPE_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     SUBCATEGORY_TYPE_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     SUBCATEGORY_TYPE_DESCRIPTION_DELETED = Column(Boolean, default=False)
@@ -97,7 +97,7 @@ class Logs(Base):
 class LogLevels(Base):
     __tablename__ = "LOG_LEVEL_TYPES"
     LOG_LEVEL_TYPE_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    LOG_LEVEL_TYPE_NAME = Column(String(50, collation='utf8mb4_unicode_ci'), nullable=False, index=True)
+    LOG_LEVEL_TYPE_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False, index=True)
     LOG_LEVEL_TYPE_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     LOG_LEVEL_TYPE_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     LOG_LEVEL_TYPE_DELETED = Column(Boolean, default=False)
