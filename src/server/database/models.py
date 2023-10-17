@@ -47,16 +47,28 @@ class AccountCurrencyType(Base):
 class Categories(Base):
     __tablename__ = "CATEGORIES_TYPES"
     CATEGORY_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    CATEGORY_ID_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
-    CATEGORY_ID_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
-    CATEGORY_ID_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
-    CATEGORY_ID_DESCRIPTION_DELETED = Column(Boolean, default=False)
-    CATEGORY_ID_DESCRIPTION_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    CATEGORY_ICON_ID = Column(Integer, ForeignKey('CATEGORY_ICONS.CATEGORY_ICON_ID'), index=True, nullable=False)
+    CATEGORY_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_DESCRIPTION_DELETED = Column(Boolean, default=False)
+    CATEGORY_DESCRIPTION_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
+
+class CategoryIcons(Base):
+    __tablename__ = "CATEGORY_ICONS"
+    CATEGORY_ICON_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    CATEGORY_ICON_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    CATEGORY_ICON_URL = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_ICON_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_ICON_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    CATEGORY_ICON_DESCRIPTION_DELETED = Column(Boolean, default=False)
+    CATEGORY_ICON_DESCRIPTION_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
 
 class SubCategories(Base):
     __tablename__ = "SUBCATEGORIES_TYPES"
     SUBCATEGORY_TYPE_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
     SUBCATEGORY_TYPE_NAME = Column(String(10, collation='utf8mb4_unicode_ci'), unique=True, nullable=False)
+    CATEGORY_ICON_ID = Column(Integer, ForeignKey('CATEGORY_ICONS.CATEGORY_ICON_ID'), index=True, nullable=False)
     SUBCATEGORY_TYPE_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     SUBCATEGORY_TYPE_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
     SUBCATEGORY_TYPE_DESCRIPTION_DELETED = Column(Boolean, default=False)
