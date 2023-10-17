@@ -29,7 +29,7 @@ async def get_user_wallet(
         user = (
             db.query(
                 models.User.USER_ID,
-                models.User.USER_NAME.label,
+                models.User.USER_NAME,
                 models.User.USER_SURNAMES,
                 models.User.USER_MAIL)
             .filter(models.User.USER_ID == user_id,
