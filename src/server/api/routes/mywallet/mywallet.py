@@ -33,7 +33,9 @@ async def get_user_wallet(
                 models.User.USER_SURNAMES,
                 models.User.USER_MAIL)
             .filter(models.User.USER_ID == user_id,
-                    models.User.USER_ACTIVE == True).first())
+                    models.User.USER_ACTIVE == True)
+            .first()
+            )
 
         user_wallets = (
             db.query(
@@ -46,7 +48,9 @@ async def get_user_wallet(
             .filter(models.Wallets.USER_ID == user_id,
                     models.Wallets.WALLET_DELETED == False,
                     models.AccountCurrencyType.ACCOUNT_CURRENCY_TYPES_DELETED == False,
-                    models.Account.ACCOUNT_DELETED == False).all())
+                    models.Account.ACCOUNT_DELETED == False)
+            .all()
+            )
 
         if (user_wallets is None) or (user_wallets == []) or (user_wallets == "null"):
             response = status.HTTP_404_NOT_FOUND
