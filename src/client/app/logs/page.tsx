@@ -1,7 +1,7 @@
 'use client'
 
 import { LogsResponse } from '@/types/logs'
-import { ErrorResponse } from '@/types/error'
+import { Error } from '@/types/error'
 import React, { useState, useEffect } from 'react'
 import Alerts from '@/components/Alerts'
 import Loading from '@/components/Loading'
@@ -9,11 +9,10 @@ import Filters from '@/components/Logs/Filters'
 
 const Logs: React.FC = () => {
   const [logs, setLogs] = useState<LogsResponse | null>(null)
-  const [error, setError] = useState<ErrorResponse | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const [isLoading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [expandedRows, setExpandedRows] = useState<number[]>([])
-  const itemsPerPage = 10
+  const itemsPerPage = 15
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
 
@@ -141,76 +140,96 @@ const Logs: React.FC = () => {
         </div>
       ): error ? (
         <div id="Error Alert">
-          <Alerts errorData={error?.detail} />
+          <Alerts errorData={error} />
         </div>
       ) : (
-        <div className="bg-white p-8 rounded-md w-full">
-          <div className="flex items-center justify-between pb-6">
-            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-              <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-                <table className="min-w-full leading-normal">
-                    {/* Table headers */}
-                    <thead>
-                    <tr>
-                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Id</th>
-                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Title</th>
-                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
-                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Enpoint</th>
-                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Register At</th>
-                    </tr>
-                    </thead>
-                    {/* Table body */}
-                    <tbody>
-                    {currentItems?.map((log, index) => (
-                      <tr key={index}>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{log?.logId}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{log?.logTitle}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{log?.logLevel}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{log?.logEndpoint}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{log?.logRegisterAt}</p>
-                        </td>
-                      </tr>
-                    ))}
-                    </tbody>
-                </table>
-                <div className="pagination-container">
-                  <nav aria-label="Page navigation" className="items-center">
-                    <ul className="inline-flex -space-x-px text-base h-10">
-                      <li>
-                        <button
-                          className="flex items-center justify-center px-4 h-10 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                          onClick={() => setCurrentPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                        >
-                          Previous
-                        </button>
-                      </li>
-                      {renderPageNumbers()}
-                      <li>
-                        <button
-                          className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                          onClick={() => setCurrentPage(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                        >
-                          Next
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </div>
-            </div>
+      <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="overflow-x-auto">
+          <table className="w-full bg-white border border-gray-300">
+            <thead>
+              <tr>
+                <th className="px-6 py-3 border-b border-gray-300 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Logs</th>
+              </tr>
+            </thead>
+            <tbody>
+            {currentItems?.map((log) => (
+              <tr key={log?.logId}>
+                <td className="px-6 py-4 border-b border-gray-300">
+                  <details>
+                    <summary className="cursor-pointer">
+                      {log?.logRegisterAt} - {log?.logId}
+                      <br/>
+                      <span className="cursor-pointer font-bold text-blue-400 text-sm">
+                        {log?.logTitle}
+                      </span>
+                    </summary>
+                    <div className="LogDescriptions">
+                      <div id="LogLevel" className="mt-5">
+                        <p className="font-bold">level</p>
+                        <div className="px-4 py-2 whitespace-pre-line text-justify">
+                          <p>
+                            {log?.logLevel}
+                          </p>
+                        </div>
+                      </div>
+                      <div id="LogMessages" className="mt-5">
+                        <p className="font-bold">message</p>
+                        <div className="px-4 py-2 bg-gray-200 whitespace-pre-line text-justify">
+                          <code>
+                            {log?.logBody}
+                          </code>
+                        </div>
+                      </div>
+                      <div id="LogSource" className="mt-5">
+                        <p className="font-bold">source</p>
+                        <div className="px-4 py-2 whitespace-pre-line text-justify">
+                          <p>
+                            {log?.logEndpoint}
+                          </p>
+                        </div>
+                      </div>
+                      <div id="LogTimestamp" className="mt-5">
+                        <p className="font-bold">timestamp</p>
+                        <div className="px-4 py-2 whitespace-pre-line text-justify">
+                          <p>
+                            {log?.logRegisterAt}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+          <div className="pagination-container">
+            <nav aria-label="Page navigation" className="items-center">
+              <ul className="inline-flex -space-x-px text-base h-10">
+                <li>
+                  <button
+                    className="flex items-center justify-center px-4 h-10 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+                </li>
+                {renderPageNumbers()}
+                <li>
+                  <button
+                    className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
+      </div>
       )}
     </>
   )
