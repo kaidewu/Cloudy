@@ -18,6 +18,7 @@ class Error:
             status: int,
             endpoint: str
             ) -> None:
+        
         self.error_uuid = str(uuid4())
         self.error_register_at = int(time.time())
         self.error_status = status
@@ -27,9 +28,9 @@ class Error:
 
     def insert_error_db(self) -> Dict:
 
-        '''
-            Insert into table LOGS
-        '''
+        """:function:`insert_error_db`
+        
+        """
 
         insert_query_logs = models.Logs(
             LOG_UUID = self.error_uuid,

@@ -93,6 +93,12 @@ async def create_user(
     db: Session = Depends(get_db)
     ):
 
+    """An async :function:`create_user`
+    
+   :param user: Class CreateUser data in the payload
+   :param db: Connection to the db. Do not remove
+    """
+
     try:
         if user.user_birthdate is not None:
             try:
