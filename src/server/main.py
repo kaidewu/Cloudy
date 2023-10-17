@@ -38,7 +38,7 @@ app.include_router(
 app.include_router(
         wallet_router,
         prefix="/api/v1",
-        tags=["users"],
+        tags=["wallet"],
     )
 
 app.include_router(
