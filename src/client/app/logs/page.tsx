@@ -1,6 +1,6 @@
 'use client'
 
-import { LogsResponse } from '@/types/logs'
+import { LogsResponse } from '@/types/log'
 import { Error } from '@/types/error'
 import React, { useState, useEffect } from 'react'
 import Alerts from '@/components/Alerts'
@@ -18,15 +18,12 @@ const Logs: React.FC = () => {
 
   async function GetLogs(Endpoint: string) {
 
-    setLoading(true)
-
     try {
       const response = await fetch(Endpoint)
+      const data = await response.json()
       if (!response.ok) {
-        const error = await response.json()
-        setError(error)
+        setError(data)
       } else {
-        const data = await response.json()
         setLogs(data)
       }
     } catch (error) {
@@ -37,6 +34,8 @@ const Logs: React.FC = () => {
   }
 
   useEffect(() => {
+    // Set Loading true until the data is reloaded
+    setLoading(true)
     // Make the initial API call when the component mounts
     GetLogs(process.env.NEXT_PUBLIC_API_ENDPOINT + "/logs" || "")
   }, [])
