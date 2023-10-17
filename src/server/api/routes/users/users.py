@@ -21,11 +21,12 @@ def get_db():
     finally:
         db.close()
 
-@users_router.get("/users", response_description="List all users")
+@users_router.get("/users", summary="List all users")
 async def get_users(
     db: Session = Depends(get_db)
     ):
     users = []
+    response = 0
 
     try:
         all_users = (
@@ -44,15 +45,8 @@ async def get_users(
         )
         
         if (all_users is None) or (all_users == []) or (all_users == "null"):
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content=Error(
-                    "Not Exists Users",
-                    "Not Exists Users",
-                    status.HTTP_400_BAD_REQUEST,
-                    "GET http://192.168.1.47/api/v1/users"
-                ).insert_error_db()
-            )
+            response = status.HTTP_404_NOT_FOUND
+            raise ValueError("Not Exists Users")
         
         for user in all_users:
             users.append({
@@ -63,7 +57,7 @@ async def get_users(
                 "userLogin": user[4],
                 "userMail": user[5],
                 "userPhone": user[6],
-                "userBirthdate": user[7],
+                "userBirthdate": user[7].isoformat(),
                 "userLastLogin": user[8],
                 "userActive": user[9]
             })
@@ -72,17 +66,20 @@ async def get_users(
             status_code=status.HTTP_200_OK,
             content={
                 "status": status.HTTP_200_OK,
-                "data": users
+                "users": users
             }
         )
 
     except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
+        print(traceback.format_exc())
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=response,
             content=Error(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                response,
                 f"GET http://192.168.1.47/api/v1/users"
             ).insert_error_db()
         )
@@ -98,65 +95,30 @@ async def create_user(
    :param user: Class CreateUser data in the payload
    :param db: Connection to the db. Do not remove
     """
-
+    response = 0
     try:
         if user.user_birthdate is not None:
             try:
                 datetime.strptime(user.user_birthdate, "%Y-%m-%d")
             except ValueError:
-                return JSONResponse(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
-                content=Error(
-                    "Invalid date format. Date should be in the format 'YYYY-MM-DD'",
-                    "Invalid date format. Date should be in the format 'YYYY-MM-DD'",
-                    status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    "POST http://192.168.1.47/api/v1/create/user"
-                ).insert_error_db()
-            )
+                response = status.HTTP_422_UNPROCESSABLE_ENTITY
+                raise ValueError("Invalid date format. Date should be in the format 'YYYY-MM-DD'")
 
         if len(''.join(filter(str.isdigit, user.user_phone))) != 9:
-            return JSONResponse(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
-                    content=Error(
-                        "Invalid phone number format. Phone number should be 9 digits",
-                        "Invalid phone number format. Phone number should be 9 digits",
-                        status.HTTP_422_UNPROCESSABLE_ENTITY,
-                        "POST http://192.168.1.47/api/v1/create/user"
-                    ).insert_error_db()
-                )
+            response = status.HTTP_422_UNPROCESSABLE_ENTIT
+            raise ValueError("Invalid phone number format. Phone number should be 9 digits")
 
         if db.query(models.User).filter(models.User.USER_LOGIN == user.user_login).first():
-            return JSONResponse(
-                status_code=status.HTTP_409_CONFLICT,
-                content=Error(
-                    f"The username {user.user_login} already exists",
-                    f"The username {user.user_login} already exists",
-                    status.HTTP_409_CONFLICT,
-                    "POST http://192.168.1.47/api/v1/create/user"
-                ).insert_error_db()
-            )
+            response = status.HTTP_409_CONFLICT
+            raise ValueError(f"The username {user.user_login} already exists")
         
         if db.query(models.User).filter(models.User.USER_MAIL == user.user_mail).first():
-            return JSONResponse(
-                status_code=status.HTTP_409_CONFLICT,
-                content=Error(
-                    f"The mail {user.user_mail} already exists",
-                    f"The mail {user.user_mail} already exists",
-                    status.HTTP_409_CONFLICT,
-                    "POST http://192.168.1.47/api/v1/create/user"
-                ).insert_error_db()
-            )
+            response = status.HTTP_409_CONFLICT
+            raise ValueError(f"The mail {user.user_mail} already exists")
 
         if db.query(models.User).filter(models.User.USER_PHONE == user.user_phone).first():
-            return JSONResponse(
-                status_code=status.HTTP_409_CONFLICT,
-                content=Error(
-                    f"The phone number {user.user_phone} already exists",
-                    f"The phone number {user.user_phone} already exists",
-                    status.HTTP_409_CONFLICT,
-                    "POST http://192.168.1.47/api/v1/create/user"
-                ).insert_error_db()
-            )
+            response = status.HTTP_409_CONFLICT
+            raise ValueError(f"The phone number {user.user_phone} already exists")
 
         insert_user = models.User(
             USER_CREATED_AT = int(time.time()),
@@ -183,12 +145,14 @@ async def create_user(
         )
     
     except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=response,
             content=Error(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                response,
                 f"POST http://192.168.1.47/api/v1/create/user"
             ).insert_error_db()
         )

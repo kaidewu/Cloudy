@@ -22,14 +22,14 @@ async def get_user_wallet(
     user_id: str = None,
     db: Session = Depends(get_db)
     ):
-
     wallets = []
+    response = 0
 
     try:
         user = (
             db.query(
                 models.User.USER_ID,
-                models.User.USER_NAME,
+                models.User.USER_NAME.label,
                 models.User.USER_SURNAMES,
                 models.User.USER_MAIL)
             .filter(models.User.USER_ID == user_id,
@@ -49,26 +49,12 @@ async def get_user_wallet(
                     models.Account.ACCOUNT_DELETED == False).all())
 
         if (user_wallets is None) or (user_wallets == []) or (user_wallets == "null"):
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content=Error(
-                    f"The user {user_id} wallet not exists",
-                    f"The user {user_id} wallet not exists",
-                    status.HTTP_404_NOT_FOUND,
-                    f"GET http://192.168.1.47/api/v1/{user_id}/wallet"
-                ).insert_error_db()
-            )
+            response = status.HTTP_404_NOT_FOUND
+            raise ValueError(f"The user {user_id} wallet not exists")
         
         if (user is None) or (user == []) or (user == "null"):
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content=Error(
-                    f"The user {user_id} not exists",
-                    f"The user {user_id} not exists",
-                    status.HTTP_404_NOT_FOUND,
-                    f"GET http://192.168.1.47/api/v1/{user_id}/wallet"
-                ).insert_error_db()
-            )
+            response = status.HTTP_404_NOT_FOUND
+            raise ValueError(f"The user {user_id} not exists")
 
         for wallet in user_wallets:
             wallets.append({
@@ -90,12 +76,14 @@ async def get_user_wallet(
         }
     
     except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
         return JSONResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status_code=response,
                 content=Error(
                     traceback.format_exc(),
                     traceback.format_exc().splitlines()[-1],
-                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    response,
                     f"GET http://192.168.1.47/api/v1/{user_id}/wallet"
                 ).insert_error_db()
             )

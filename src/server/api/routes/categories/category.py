@@ -25,6 +25,7 @@ async def caterogies(
     db: Session = Depends(get_db)
     ):
     categories = []
+    response = 0
 
     try:
         all_categories = (
@@ -43,15 +44,8 @@ async def caterogies(
         )
 
         if (all_categories is None) or (all_categories == []) or (all_categories == "null"):
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content=Error(
-                    "Not found any categories",
-                    "Not found any categories",
-                    status.HTTP_404_NOT_FOUND,
-                    "GET http://192.168.1.47/api/v1/category"
-                ).insert_error_db()
-            )
+            response = status.HTTP_404_NOT_FOUND
+            raise ValueError("Not found any categories")
         
         for category in all_categories:
             categories.append({
@@ -71,12 +65,14 @@ async def caterogies(
         )
 
     except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=response,
             content=Error(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                response,
                 "GET http://192.168.1.47/api/v1/category"
             ).insert_error_db()
         )
@@ -86,6 +82,7 @@ async def category_icons(
     db: Session = Depends(get_db)
     ):
     category_icons = []
+    response = 0
 
     try:
         all_category_icons = (
@@ -104,15 +101,8 @@ async def category_icons(
         )
 
         if (all_category_icons is None) or (all_category_icons == []) or (all_category_icons == "null"):
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND,
-                content=Error(
-                    "Not found any category Icons",
-                    "Not found any category Icons",
-                    status.HTTP_404_NOT_FOUND,
-                    "GET http://192.168.1.47/api/v1/category/icons"
-                ).insert_error_db()
-            )
+            response = status.HTTP_404_NOT_FOUND
+            raise ValueError("Not found any category Icons")
         
         for icon in all_category_icons:
             category_icons.append({
@@ -130,12 +120,14 @@ async def category_icons(
         )
 
     except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=response,
             content=Error(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                response,
                 "GET http://192.168.1.47/api/v1/category/icons"
             )
         )
@@ -145,6 +137,8 @@ async def create_category(
     category: CreateCategory,
     db: Session = Depends(get_db)
     ):
+
+    response = 0
     try:
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -154,12 +148,14 @@ async def create_category(
             }
         )
     except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
         return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=response,
             content=Error(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                response,
                 "POST http://192.168.1.47/api/v1/create/category"
             )
         )
