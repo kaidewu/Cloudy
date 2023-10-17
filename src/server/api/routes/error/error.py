@@ -28,6 +28,7 @@ async def get_logs(
 ):
     all_logs = []
     filters = []
+    response = 0
 
     try:
         if startDate is not None and startDate != "":
@@ -52,15 +53,8 @@ async def get_logs(
             ).all()
 
         if (get_logs is None) or (get_logs == []) or (get_logs == "null"):
-            return JSONResponse(
-                status_code=status.HTTP_404_NOT_FOUND, 
-                content=Error(
-                    f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
-                    f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet",
-                    status.HTTP_404_NOT_FOUND,
-                    "GET http://192.168.1.47/api/v1/logs"
-                ).insert_error_db()
-            )
+            response = status.HTTP_404_NOT_FOUND
+            raise ValueError(f"{errorId} not exists" if (errorId is not None) and (errorId != "") else "Not register Logs yet")
         
         for log in get_logs:
             all_logs.append({
@@ -78,12 +72,14 @@ async def get_logs(
         }
     
     except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
         return JSONResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                status_code=response, 
                 content=Error(
                     traceback.format_exc(),
                     traceback.format_exc().splitlines()[-1],
-                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    response,
                     "GET http://192.168.1.47/api/v1/logs"
                 ).insert_error_db()
             )
