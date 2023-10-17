@@ -25,16 +25,20 @@ async def caterogies(
     db: Session = Depends(get_db)
     ):
     categories = []
-    print(lang)
 
     try:
         all_categories = (
             db.query(
                 models.Categories.CATEGORY_ID,
-                models.Categories.CATEGORY_ID_NAME,
-                models.Categories.CATEGORY_ID_DESCRIPTION_EN if lang == "en-En" else models.Categories.CATEGORY_ID_DESCRIPTION_ES)
+                models.Categories.CATEGORY_NAME,
+                models.Categories.CATEGORY_ICON_ID,
+                models.CategoryIcons.CATEGORY_ICON_URL,
+                models.Categories.CATEGORY_DESCRIPTION_EN if (lang == "en-EN") or (lang == "") else models.Categories.CATEGORY_DESCRIPTION_ES)
+            .select_from(models.Categories)
+            .join(models.CategoryIcons, models.Categories.CATEGORY_ICON_ID == models.CategoryIcons.CATEGORY_ICON_ID)
             .filter(
-                models.Categories.CATEGORY_ID_DESCRIPTION_DELETED == False)
+                models.Categories.CATEGORY_DESCRIPTION_DELETED == False,
+                models.CategoryIcons.CATEGORY_ICON_DESCRIPTION_DELETED == False)
             .all()
         )
 
@@ -53,8 +57,9 @@ async def caterogies(
             categories.append({
                 "categoryId": category[0],
                 "categoryName": category[1],
-                #"categoryIcon": category[2],
-                ("categoryDescriptionEN" if lang == "en-En" else "categoryDescriptionES"): category[2]
+                "categoryIconId": category[2],
+                "categoryIconURL": category[3],
+                ("categoryDescriptionEN" if (lang == "en-EN") or (lang == "") else "categoryDescriptionES"): category[4]
             })
         
         return JSONResponse(
@@ -76,13 +81,78 @@ async def caterogies(
             ).insert_error_db()
         )
 
+@category_router.get("/category/icons", summary="Get icons of categories if it is not in uses")
+async def category_icons(
+    db: Session = Depends(get_db)
+    ):
+    category_icons = []
+
+    try:
+        all_category_icons = (
+            db.query(
+                models.CategoryIcons.CATEGORY_ICON_ID,
+                models.CategoryIcons.CATEGORY_ICON_NAME,
+                models.CategoryIcons.CATEGORY_ICON_URL
+            )
+            .outerjoin(models.Categories, models.Categories.CATEGORY_ICON_ID == models.CategoryIcons.CATEGORY_ICON_ID)
+            .outerjoin(models.SubCategories, models.SubCategories.CATEGORY_ICON_ID == models.CategoryIcons.CATEGORY_ICON_ID)
+            .filter(
+                (models.Categories.CATEGORY_ICON_ID == None) & (models.SubCategories.CATEGORY_ICON_ID == None),
+                models.CategoryIcons.CATEGORY_ICON_DESCRIPTION_DELETED == False
+            )
+            .all()
+        )
+
+        if (all_category_icons is None) or (all_category_icons == []) or (all_category_icons == "null"):
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=Error(
+                    "Not found any category Icons",
+                    "Not found any category Icons",
+                    status.HTTP_404_NOT_FOUND,
+                    "GET http://192.168.1.47/api/v1/category/icons"
+                ).insert_error_db()
+            )
+        
+        for icon in all_category_icons:
+            category_icons.append({
+                "categoryIconId": icon[0],
+                "categoryIconName": icon[1],
+                "categoryIconURL": icon[2]
+            })
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "categoryIcons": category_icons
+            }
+        )
+
+    except:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=Error(
+                traceback.format_exc(),
+                traceback.format_exc().splitlines()[-1],
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "GET http://192.168.1.47/api/v1/category/icons"
+            )
+        )
 
 @category_router.post("/create/category")
 async def create_category(
+    category: CreateCategory,
     db: Session = Depends(get_db)
     ):
     try:
-        pass
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "message": f"The category '{category.categoryName}' has been created succesfully"
+            }
+        )
     except:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
