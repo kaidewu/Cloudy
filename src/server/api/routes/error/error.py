@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from database.connection import SessionLocal
 from database import models
 from api.routes.error.error_log import Error
+from constants import ENV_VARS, DATETIME_FORMAT
 
 import traceback
 from datetime import datetime
@@ -40,17 +41,17 @@ async def get_logs(
         if errorId is not None and errorId != "":
             filters.append(models.Logs.LOG_UUID == errorId)
 
-        get_logs = db.query(
-            models.Logs.LOG_UUID,
-            models.Logs.LOG_REGISTER_AT,
-            models.Logs.LOG_BODY,
-            models.Logs.LOG_ENDPOINT,
-            models.LogLevels.LOG_LEVEL_TYPE_NAME
-            ).join(models.LogLevels, models.Logs.LOG_LEVEL == models.LogLevels.LOG_LEVEL_TYPE_ID
-            ).filter(models.Logs.LOG_DELETED == False, 
-                     models.LogLevels.LOG_LEVEL_TYPE_DELETED == False,
-                     (and_(*filters))
-            ).all()
+        get_logs = (
+            db.query(
+                models.Logs.LOG_UUID,
+                models.Logs.LOG_REGISTER_AT,
+                models.Logs.LOG_BODY,
+                models.Logs.LOG_ENDPOINT,
+                models.Logs.LOG_LEVEL)
+                .filter(models.Logs.LOG_DELETED == False,
+                        (and_(*filters)))
+                .all()
+            )
 
         if (get_logs is None) or (get_logs == []) or (get_logs == "null"):
             response = status.HTTP_404_NOT_FOUND
@@ -59,7 +60,7 @@ async def get_logs(
         for log in get_logs:
             all_logs.append({
                 "logId": log[0],
-                "logRegisterAt": datetime.fromtimestamp(log[1]).strftime("%Y-%m-%d %H:%M:%S.%M"),
+                "logRegisterAt": datetime.fromtimestamp(log[1]).strftime(DATETIME_FORMAT),
                 "logTitle": str(log[2]).splitlines()[-1],
                 "logBody": log[2],
                 "logEndpoint": log[3],
@@ -80,6 +81,6 @@ async def get_logs(
                     traceback.format_exc(),
                     traceback.format_exc().splitlines()[-1],
                     response,
-                    "GET http://192.168.1.47/api/v1/logs"
+                    f"GET {ENV_VARS['API_ENDPOINT']}logs"
                 ).insert_error_db()
             )
