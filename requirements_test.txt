@@ -1,0 +1,8 @@
+sqlalchemy
+python-dotenv
+fastapi
+uvicorn[standard]
+passlib
+pyjwt
+requests
+pytest
