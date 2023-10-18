@@ -1,7 +1,9 @@
+import os
+import uvicorn
+
 from fastapi import FastAPI, status, Response
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 
 from database.connection import engine
 from database.models import Base
@@ -10,11 +12,6 @@ from api.routes.users.users import users_router
 from api.routes.mywallet.mywallet import wallet_router
 from api.routes.error.error import error_router
 from api.routes.categories.category import category_router
-
-from dotenv import dotenv_values
-import os
-
-env_vars = dotenv_values(f"{os.path.dirname(__file__)}/.env")
 
 # Configure CORS
 origins = ["*"]

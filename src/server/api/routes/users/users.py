@@ -7,6 +7,7 @@ from database import models
 from api.routes.error.error_log import Error
 from models.User.models import CreateUser
 from api.routes.users.utils import hash_password
+from constants import ENV_VARS, DATETIME_FORMAT
 
 import traceback
 import time
@@ -53,7 +54,7 @@ async def get_users(
                 "userId": user[0],
                 "userName": user[1],
                 "userSurname": user[2],
-                "userCreateAt": datetime.fromtimestamp(user[3]).strftime("%Y-%m-%d %H:%M:%S.%M"),
+                "userCreateAt": datetime.fromtimestamp(user[3]).strftime(DATETIME_FORMAT),
                 "userLogin": user[4],
                 "userMail": user[5],
                 "userPhone": user[6],
@@ -80,7 +81,7 @@ async def get_users(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
                 response,
-                f"GET http://192.168.1.47/api/v1/users"
+                f"GET {ENV_VARS['API_ENDPOINT']}users"
             ).insert_error_db()
         )
     
@@ -153,6 +154,6 @@ async def create_user(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
                 response,
-                f"POST http://192.168.1.47/api/v1/create/user"
+                f"POST {ENV_VARS['API_ENDPOINT']}create/user"
             ).insert_error_db()
         )

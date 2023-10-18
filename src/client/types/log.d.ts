@@ -4,7 +4,7 @@ export interface Log {
     logTitle: string
     logBody: string
     logEndpoint: string
-    logLevel: string
+    logLevel: number
   }
   
   export interface LogsResponse {

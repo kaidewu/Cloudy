@@ -6,9 +6,10 @@ from models.Category.models import CreateCategory
 from sqlalchemy.orm import Session
 from database import models
 from database.connection import SessionLocal
+from constants import ENV_VARS
 
 import traceback
-from datetime import datetime
+
 
 category_router = APIRouter()
 
@@ -73,7 +74,7 @@ async def caterogies(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
                 response,
-                "GET http://192.168.1.47/api/v1/category"
+                f"GET {ENV_VARS['API_ENDPOINT']}category"
             ).insert_error_db()
         )
 
@@ -128,7 +129,7 @@ async def category_icons(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
                 response,
-                "GET http://192.168.1.47/api/v1/category/icons"
+                f"GET {ENV_VARS['API_ENDPOINT']}category/icons"
             )
         )
 
@@ -156,6 +157,6 @@ async def create_category(
                 traceback.format_exc(),
                 traceback.format_exc().splitlines()[-1],
                 response,
-                "POST http://192.168.1.47/api/v1/create/category"
+                f"POST {ENV_VARS['API_ENDPOINT']}create/category"
             )
         )
