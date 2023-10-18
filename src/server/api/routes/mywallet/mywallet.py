@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from database.connection import SessionLocal
 from database import models
 from api.routes.error.error_log import Error
+from constants import ENV_VARS
 
 import traceback
 
@@ -88,6 +89,6 @@ async def get_user_wallet(
                     traceback.format_exc(),
                     traceback.format_exc().splitlines()[-1],
                     response,
-                    f"GET http://192.168.1.47/api/v1/{user_id}/wallet"
+                    f"GET {ENV_VARS['API_ENDPOINT']}{user_id}/wallet"
                 ).insert_error_db()
             )
