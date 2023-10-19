@@ -6,16 +6,26 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "USERS"
     USER_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    USER_CREATED_AT= Column(Integer, nullable=False)
-    USER_LOGIN= Column(String(255, collation='utf8mb4_unicode_ci'), unique=True, index=True)
-    USER_PASSWORD= Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False)
-    USER_MAIL= Column(String(255, collation='utf8mb4_unicode_ci'), index=True)
-    USER_PHONE= Column(String(50, collation='utf8mb4_unicode_ci'), unique=True)
-    USER_NAME= Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False, index=True)
-    USER_SURNAMES= Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False)
-    USER_BIRTHDATE= Column(Date, nullable=False)
-    USER_ACTIVE= Column(Boolean, nullable=False, default=False)
-    USER_LAST_LOGIN= Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
+    USER_CREATED_AT = Column(Integer, nullable=False)
+    USER_LOGIN = Column(String(255, collation='utf8mb4_unicode_ci'), unique=True, index=True)
+    USER_PASSWORD = Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False)
+    USER_MAIL = Column(String(255, collation='utf8mb4_unicode_ci'), index=True)
+    USER_PHONE = Column(String(50, collation='utf8mb4_unicode_ci'), unique=True)
+    USER_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False, index=True)
+    USER_SURNAMES = Column(String(255, collation='utf8mb4_unicode_ci'), nullable=False)
+    USER_BIRTHDATE = Column(Date, nullable=False)
+    USER_ROLE_ID = Column(Integer, ForeignKey('USER_ROLES.USER_ROL_ID'), index=True, nullable=False)
+    USER_ACTIVE = Column(Boolean, nullable=False, default=False)
+    USER_LAST_LOGIN = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
+
+class UserRoles(Base):
+    __tablename__ = "USER_ROLES"
+    USER_ROL_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    USER_ROL_NAME = Column(String(255, collation='utf8mb4_unicode_ci'), unique=True, index=True)
+    USER_ROL_DESCRIPTION_ES = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    USER_ROL_DESCRIPTION_EN = Column(Text(collation='utf8mb4_unicode_ci'), default=None)
+    USER_ROL_DELETED = Column(Boolean, default=None)
+    USER_ROL_DELETED_DATE = Column(String(50, collation='utf8mb4_unicode_ci'), default=None)
 
 class Wallets(Base):
     __tablename__ = "WALLETS"
