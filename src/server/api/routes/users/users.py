@@ -40,8 +40,11 @@ async def get_users(
                 models.User.USER_MAIL,
                 models.User.USER_PHONE,
                 models.User.USER_BIRTHDATE,
+                models.User.USER_ROLE_ID,
+                models.UserRoles.USER_ROL_NAME,
                 models.User.USER_LAST_LOGIN,
                 models.User.USER_ACTIVE)
+            .join(models.UserRoles, models.UserRoles.USER_ROL_ID == models.User.USER_ROLE_ID)
             .all()
         )
         
@@ -59,8 +62,10 @@ async def get_users(
                 "userMail": user[5],
                 "userPhone": user[6],
                 "userBirthdate": user[7].isoformat(),
-                "userLastLogin": user[8],
-                "userActive": user[9]
+                "userRoleId": user[8],
+                "userRoleName": user[9],
+                "userLastLogin": user[10],
+                "userActive": user[11]
             })
 
         return JSONResponse(
@@ -84,7 +89,54 @@ async def get_users(
                 f"GET {ENV_VARS['API_ENDPOINT']}users"
             ).insert_error_db()
         )
-    
+
+@users_router.get("/user/roles", summary="Get user roles")
+async def get_user_roles(
+    db: Session = Depends(get_db)
+):
+    roles = []
+    response = 0
+    try:
+        type_roles = (
+            db.query(
+                models.UserRoles.USER_ROL_ID,
+                models.UserRoles.USER_ROL_NAME)
+            .filter(models.UserRoles.USER_ROL_DELETED == False)
+            .all()
+        )
+
+        if (type_roles is None) or (type_roles == []) or (type_roles == "null"):
+            response = status.HTTP_404_NOT_FOUND
+            raise ValueError("Not found user roles")
+        
+        for rol in type_roles:
+            roles.append({
+                "userRolId": rol[0],
+                "userRolName": rol[1]
+            })
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "userRoles": roles
+            }
+        )
+
+    except:
+        if response == 0:
+            response = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return JSONResponse(
+            status_code=response,
+            content=Error(
+                traceback.format_exc(),
+                traceback.format_exc().splitlines()[-1],
+                response,
+                f"GET {ENV_VARS['API_ENDPOINT']}/user/roles"
+            ).insert_error_db()
+        )
+
+
 @users_router.post("/create/user", summary="Create Users")
 async def create_user(
     user: CreateUser,
