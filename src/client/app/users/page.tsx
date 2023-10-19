@@ -3,13 +3,16 @@
 import { useEffect, useState } from "react"
 import { Error } from "@/types/error"
 import { UserResponse } from "@/types/user"
+import { UserRolesResponse } from "@/types/user"
 import Alerts from "@/components/Alerts"
 import Loading from "@/components/Loading"
+import Dropdown from "@/components/Users/Dropdown"
 
 function Users() {
     const [isLoading, setLoading] = useState(false)
     const [error, setError] = useState<Error | null>(null)
     const [users, setUsers] = useState<UserResponse | null>(null)
+    const [roles, setRoles] = useState<UserRolesResponse | null>(null)
 
     async function GetUsers(endpoint: string) {
 
@@ -28,9 +31,27 @@ function Users() {
         }
     }
 
+    async function GetRoles(endpoint: string) {
+
+        try{
+            const response = await fetch(endpoint)
+            const data = await response.json()
+            if (!response.ok){
+                setError(data)
+            } else {
+                setRoles(data)
+            }
+        } catch (error){
+            console.error('Error fetching data:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     useEffect(() => {
         // Set Loading to True
         setLoading(true)
+        GetRoles(process.env.NEXT_PUBLIC_API_ENDPOINT + "/user/roles" || "")
         GetUsers(process.env.NEXT_PUBLIC_API_ENDPOINT + "/users" || "")
     }, [])
 
@@ -57,7 +78,9 @@ function Users() {
                                 <tr key={user?.userId}>
                                     <td className="px-6 py-4 whitespace-nowrap">{user?.userName}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{user?.userMail}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{user?.userName}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <Dropdown actualUserRole={user?.userRoleName} userRoles={roles?.userRoles}/>
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span 
                                         className= {`${user?.userActive ?
