@@ -7,6 +7,8 @@ export interface User{
     userMail: string
     userPhone: string
     userBirthdate: string
+    userRoleId: number
+    userRoleName: string
     userLastLogin: string
     userActive: boolean
 }
@@ -14,4 +16,14 @@ export interface User{
 export interface UserResponse {
     status: number
     users: User[]
+}
+
+export interface UserRoles {
+    userRolId: number
+    userRolName: string
+}
+
+export interface UserRolesResponse {
+    status: number
+    userRoles: UserRoles[]
 }
